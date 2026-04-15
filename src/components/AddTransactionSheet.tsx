@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, CalendarDays } from "lucide-react";
 import type { TransactionType } from "@/lib/firebase";
 
 interface AddTransactionSheetProps {
@@ -12,6 +12,15 @@ interface AddTransactionSheetProps {
 
 const DEFAULT_TAGS = ["fuel", "salary", "food", "shopping", "bills", "rent", "entertainment", "travel", "other"];
 
+const formatDateEN_IN = (d: Date) => {
+  const day = d.getDate().toString().padStart(2, "0");
+  const month = (d.getMonth() + 1).toString().padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
+const toInputDate = (d: Date) => d.toISOString().split("T")[0];
+
 const AddTransactionSheet = ({ open, onClose, onAdd, activeList, tags }: AddTransactionSheetProps) => {
   const allTags = tags || DEFAULT_TAGS;
   const debitTags = allTags.filter((t) => t !== "credit");
@@ -19,23 +28,26 @@ const AddTransactionSheet = ({ open, onClose, onAdd, activeList, tags }: AddTran
   const [amount, setAmount] = useState("");
   const [type, setType] = useState<TransactionType>("debit");
   const [tag, setTag] = useState(debitTags[0] || "other");
+  const [selectedDate, setSelectedDate] = useState(toInputDate(new Date()));
 
   if (!open) return null;
 
   const handleSubmit = () => {
     if (!name || !amount) return;
+    const dateObj = new Date(selectedDate + "T00:00:00");
     onAdd({
       name,
       amount: parseFloat(amount),
       type,
       tag: type === "credit" ? "credit" : tag,
-      date: new Date().toLocaleDateString("en-IN"),
+      date: formatDateEN_IN(dateObj),
       list: activeList,
     });
     setName("");
     setAmount("");
     setType("debit");
     setTag(debitTags[0] || "other");
+    setSelectedDate(toInputDate(new Date()));
     onClose();
   };
 
@@ -62,10 +74,24 @@ const AddTransactionSheet = ({ open, onClose, onAdd, activeList, tags }: AddTran
           <input
             placeholder="Amount (₹)"
             type="number"
+            inputMode="decimal"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             className="w-full bg-muted/60 rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/50 text-sm border border-border/30"
           />
+
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <CalendarDays size={14} className="text-muted-foreground" />
+              <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Date</label>
+            </div>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="w-full bg-muted/60 rounded-xl px-4 py-3 text-foreground text-sm outline-none focus:ring-2 focus:ring-primary/50 border border-border/30 [color-scheme:dark]"
+            />
+          </div>
 
           <div className="flex gap-2">
             <button

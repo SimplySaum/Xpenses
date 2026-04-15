@@ -5,14 +5,16 @@ import TransactionItem from "@/components/TransactionItem";
 import AddTransactionSheet from "@/components/AddTransactionSheet";
 import ManageTagsSheet from "@/components/ManageTagsSheet";
 import ManageListsSheet from "@/components/ManageListsSheet";
-import { addTransaction, deleteTransaction, subscribeToTransactions, type Transaction } from "@/lib/firebase";
+import { addTransaction, deleteTransaction, subscribeToTransactions, subscribeToLists, addList, removeList, type Transaction } from "@/lib/firebase";
 
 const DEFAULT_TAGS = ["fuel", "salary", "food", "shopping", "bills", "rent", "entertainment", "travel", "credit", "other"];
 const DEFAULT_LISTS = ["List 1", "List 2", "List 3"];
 
-type SortMode = "date-desc" | "date-asc" | "amount-desc" | "amount-asc" | "name-asc";
+type SortMode = "created-desc" | "created-asc" | "date-desc" | "date-asc" | "amount-desc" | "amount-asc" | "name-asc";
 
 const SORT_LABELS: Record<SortMode, string> = {
+  "created-desc": "Latest",
+  "created-asc": "Earliest",
   "date-desc": "Newest",
   "date-asc": "Oldest",
   "amount-desc": "Highest",
@@ -24,8 +26,6 @@ const parseDate = (d: string) => {
   const [day, month, year] = d.split("/").map(Number);
   return new Date(year, month - 1, day).getTime();
 };
-
-const formatDateInput = (d: Date) => d.toISOString().split("T")[0];
 
 const Index = () => {
   const [lists, setLists] = useState<string[]>(() => {
@@ -42,28 +42,51 @@ const Index = () => {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [tagsSheetOpen, setTagsSheetOpen] = useState(false);
   const [listsSheetOpen, setListsSheetOpen] = useState(false);
-  const [sortMode, setSortMode] = useState<SortMode>("date-desc");
+  const [sortMode, setSortMode] = useState<SortMode>("created-desc");
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [showFilter, setShowFilter] = useState(false);
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
   const [localTransactions, setLocalTransactions] = useState<Transaction[]>([]);
-
   const [useFirebase, setUseFirebase] = useState(false);
+  const [firebaseLists, setFirebaseLists] = useState<string[] | null>(null);
 
   useEffect(() => {
     const unsub = subscribeToTransactions((data) => {
+      setTransactions(data);
+      setUseFirebase(true);
+    });
+    return () => unsub();
+  }, []);
+
+  // Subscribe to lists from Firebase
+  useEffect(() => {
+    const unsub = subscribeToLists((data) => {
       if (data.length > 0) {
-        setTransactions(data);
-        setUseFirebase(true);
+        setFirebaseLists(data);
+        setLists(data);
       }
     });
     return () => unsub();
   }, []);
 
+  // Seed default lists to Firebase on first use
+  useEffect(() => {
+    if (useFirebase && firebaseLists !== null && firebaseLists.length === 0) {
+      DEFAULT_LISTS.forEach((l) => addList(l));
+    }
+  }, [useFirebase, firebaseLists]);
+
   useEffect(() => { localStorage.setItem("expense-lists", JSON.stringify(lists)); }, [lists]);
   useEffect(() => { localStorage.setItem("expense-tags", JSON.stringify(tags)); }, [tags]);
+
+  // Keep activeList valid
+  useEffect(() => {
+    if (lists.length > 0 && !lists.includes(activeList)) {
+      setActiveList(lists[0]);
+    }
+  }, [lists, activeList]);
 
   const allTransactions = useFirebase ? transactions : localTransactions;
 
@@ -80,12 +103,14 @@ const Index = () => {
       base = base.filter((t) => parseDate(t.date) >= fromTs);
     }
     if (dateTo) {
-      const toTs = new Date(dateTo).getTime() + 86400000;
-      base = base.filter((t) => parseDate(t.date) < toTs);
+      const toTs = new Date(dateTo).getTime() + 86400000 - 1;
+      base = base.filter((t) => parseDate(t.date) <= toTs);
     }
 
     return base.sort((a, b) => {
       switch (sortMode) {
+        case "created-desc": return (b.createdAt || 0) - (a.createdAt || 0);
+        case "created-asc": return (a.createdAt || 0) - (b.createdAt || 0);
         case "date-desc": return parseDate(b.date) - parseDate(a.date);
         case "date-asc": return parseDate(a.date) - parseDate(b.date);
         case "amount-desc": return b.amount - a.amount;
@@ -106,7 +131,7 @@ const Index = () => {
     if (useFirebase) {
       await addTransaction(data);
     } else {
-      setLocalTransactions((prev) => [{ ...data, id: Date.now().toString() }, ...prev]);
+      setLocalTransactions((prev) => [{ ...data, id: Date.now().toString(), createdAt: Date.now() }, ...prev]);
     }
   };
 
@@ -118,16 +143,28 @@ const Index = () => {
     }
   };
 
-  const handleAddList = (name: string) => setLists((prev) => [...prev, name]);
-  const handleRemoveList = (name: string) => {
-    setLists((prev) => prev.filter((l) => l !== name));
+  const handleAddList = async (name: string) => {
+    if (useFirebase) {
+      await addList(name);
+    } else {
+      setLists((prev) => [...prev, name]);
+    }
+  };
+
+  const handleRemoveList = async (name: string) => {
+    if (useFirebase) {
+      await removeList(name);
+    } else {
+      setLists((prev) => prev.filter((l) => l !== name));
+    }
     if (activeList === name) setActiveList(lists.filter((l) => l !== name)[0]);
   };
+
   const handleAddTag = (tag: string) => setTags((prev) => [...prev, tag]);
   const handleRemoveTag = (tag: string) => setTags((prev) => prev.filter((t) => t !== tag));
 
   const cycleSortMode = () => {
-    const modes: SortMode[] = ["date-desc", "date-asc", "amount-desc", "amount-asc", "name-asc"];
+    const modes: SortMode[] = ["created-desc", "created-asc", "date-desc", "date-asc", "amount-desc", "amount-asc", "name-asc"];
     const idx = modes.indexOf(sortMode);
     setSortMode(modes[(idx + 1) % modes.length]);
   };
