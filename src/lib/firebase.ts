@@ -1,16 +1,7 @@
 import { initializeApp } from "firebase/app";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  onSnapshot,
-  query,
-  orderBy,
-  deleteDoc,
-  doc
-} from "firebase/firestore";
+import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc } from "firebase/firestore";
 
-// 🔥 PUT YOUR REAL CONFIG HERE
+// TODO: Replace with your Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCOVe0qEI0oeqnF5StJhhmZnJqhdeS01FI",
   authDomain: "a-project-4e19d.firebaseapp.com",
@@ -38,28 +29,34 @@ export interface Transaction {
 
 const COLLECTION = "transactions";
 
-// ✅ Add transaction
 export const addTransaction = async (transaction: Omit<Transaction, "id">) => {
-  await addDoc(collection(db, COLLECTION), transaction);
+  try {
+    await addDoc(collection(db, COLLECTION), transaction);
+  } catch (e) {
+    console.error("Firebase not configured. Using local state only.", e);
+  }
 };
 
-// ✅ Delete transaction
 export const deleteTransaction = async (id: string) => {
-  await deleteDoc(doc(db, COLLECTION, id));
+  try {
+    await deleteDoc(doc(db, COLLECTION, id));
+  } catch (e) {
+    console.error("Firebase not configured.", e);
+  }
 };
 
-// ✅ Real-time listener (IMPORTANT)
-export const subscribeToTransactions = (
-  callback: (transactions: Transaction[]) => void
-) => {
-  const q = query(collection(db, COLLECTION), orderBy("date", "desc"));
-
-  return onSnapshot(q, (snapshot) => {
-    const data = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Transaction[];
-
-    callback(data);
-  });
+export const subscribeToTransactions = (callback: (transactions: Transaction[]) => void) => {
+  try {
+    const q = query(collection(db, COLLECTION), orderBy("date", "desc"));
+    return onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Transaction[];
+      callback(data);
+    });
+  } catch (e) {
+    console.error("Firebase not configured.", e);
+    return () => {};
+  }
 };
