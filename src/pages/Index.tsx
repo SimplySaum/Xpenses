@@ -48,16 +48,7 @@ const Index = () => {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
-  const [localTransactions, setLocalTransactions] = useState<Transaction[]>([
-    { id: "1", name: "Petrol", amount: 1601.55, type: "debit", tag: "fuel", date: "15/04/2026", list: "List 1" },
-    { id: "2", name: "Monthly Salary", amount: 45000.00, type: "credit", tag: "credit", date: "01/04/2026", list: "List 1" },
-    { id: "3", name: "Electricity Bill", amount: 157.05, type: "debit", tag: "bills", date: "14/04/2026", list: "List 1" },
-    { id: "4", name: "Amazon Order", amount: 2463.10, type: "debit", tag: "shopping", date: "13/04/2026", list: "List 1" },
-    { id: "5", name: "Swiggy Food", amount: 776.70, type: "debit", tag: "food", date: "12/04/2026", list: "List 1" },
-    { id: "6", name: "Freelance Payment", amount: 12000.00, type: "credit", tag: "credit", date: "10/04/2026", list: "List 1" },
-    { id: "7", name: "House Rent", amount: 15000.00, type: "debit", tag: "rent", date: "05/04/2026", list: "List 2" },
-    { id: "8", name: "Netflix", amount: 649.00, type: "debit", tag: "entertainment", date: "08/04/2026", list: "List 2" },
-  ]);
+  const [localTransactions, setLocalTransactions] = useState<Transaction[]>([]);
 
   const [useFirebase, setUseFirebase] = useState(false);
 

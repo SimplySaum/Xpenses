@@ -3,12 +3,12 @@ import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc
 
 // TODO: Replace with your Firebase config
 const firebaseConfig = {
-  apiKey: "AIzaSyCOVe0qEI0oeqnF5StJhhmZnJqhdeS01FI",
-  authDomain: "a-project-4e19d.firebaseapp.com",
-  projectId: "a-project-4e19d",
-  storageBucket: "a-project-4e19d.firebasestorage.app",
-  messagingSenderId: "691682171738",
-  appId: "1:691682171738:web:5fd871b9be9bbd2a44b163",
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: "",
 };
 
 const app = initializeApp(firebaseConfig);
