@@ -174,7 +174,7 @@ const Index = () => {
   const hasDateFilter = dateFrom || dateTo;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col max-w-md mx-auto">
+    <div className="min-h-screen bg-background flex flex-col max-w-md mx-auto overflow-x-hidden">
       {/* Header */}
       <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/70 rounded-b-[2rem] px-5 pt-12 pb-6">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.1)_0%,_transparent_60%)]" />
@@ -241,27 +241,27 @@ const Index = () => {
       </div>
 
       {/* Search + Sort + Filter */}
-      <div className="px-4 py-3 flex gap-2">
-        <div className="flex-1 flex items-center gap-2 bg-card rounded-xl px-3 py-2.5 border border-border/50">
-          <Search size={16} className="text-muted-foreground" />
+      <div className="px-4 py-3 flex gap-2 min-w-0">
+        <div className="flex-1 min-w-0 flex items-center gap-2 bg-card rounded-xl px-3 py-2.5 border border-border/50">
+          <Search size={16} className="text-muted-foreground shrink-0" />
           <input
             placeholder="Search.."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground outline-none text-sm"
+            className="flex-1 min-w-0 bg-transparent text-foreground placeholder:text-muted-foreground outline-none text-sm"
           />
         </div>
         <button
           onClick={cycleSortMode}
-          className="flex items-center gap-1 bg-card border border-border/50 rounded-xl px-3 py-2.5 text-muted-foreground hover:text-foreground transition-colors"
+          className="shrink-0 flex items-center gap-1 bg-card border border-border/50 rounded-xl px-3 py-2.5 text-muted-foreground hover:text-foreground transition-colors"
           title={SORT_LABELS[sortMode]}
         >
           <ArrowUpDown size={15} />
-          <span className="text-[10px] font-semibold">{SORT_LABELS[sortMode]}</span>
+          <span className="text-[10px] font-semibold whitespace-nowrap">{SORT_LABELS[sortMode]}</span>
         </button>
         <button
           onClick={() => setShowFilter(!showFilter)}
-          className={`flex items-center bg-card border rounded-xl px-3 py-2.5 transition-colors ${
+          className={`shrink-0 flex items-center bg-card border rounded-xl px-3 py-2.5 transition-colors ${
             hasDateFilter ? "border-primary/50 text-primary" : "border-border/50 text-muted-foreground hover:text-foreground"
           }`}
         >
