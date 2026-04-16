@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Plus, Search, ArrowUpDown, Tag, LayoutList, Filter, X, CalendarDays, LogOut } from "lucide-react";
-import { logout } from "@/lib/firebase";
+import { Plus, Search, ArrowUpDown, Tag, LayoutList, Filter, X, CalendarDays } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import TransactionItem from "@/components/TransactionItem";
 import AddTransactionSheet from "@/components/AddTransactionSheet";
@@ -181,15 +180,8 @@ const Index = () => {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.1)_0%,_transparent_60%)]" />
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-5">
-            <h1 className="text-2xl font-extrabold text-primary-foreground tracking-tight">Xpense</h1>
+            <h1 className="text-2xl font-extrabold text-primary-foreground tracking-tight">Expenses</h1>
             <div className="flex items-center gap-0.5">
-              <button
-                onClick={() => logout()}
-                className="w-9 h-9 rounded-xl flex items-center justify-center text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-all"
-                title="Sign out"
-              >
-                <LogOut size={17} />
-              </button>
               <button
                 onClick={() => setTagsSheetOpen(true)}
                 className="w-9 h-9 rounded-xl flex items-center justify-center text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-all"
