@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
-import { Plus, Search, ArrowUpDown, Tag, LayoutList, Filter, X, CalendarDays } from "lucide-react";
+import { Plus, Search, ArrowUpDown, Tag, LayoutList, Filter, X, CalendarDays, LogOut } from "lucide-react";
+import { logout } from "@/lib/firebase";
 import { AnimatePresence, motion } from "framer-motion";
 import TransactionItem from "@/components/TransactionItem";
 import AddTransactionSheet from "@/components/AddTransactionSheet";
@@ -99,11 +100,13 @@ const Index = () => {
       );
 
     if (dateFrom) {
-      const fromTs = new Date(dateFrom).getTime();
+      const [y, m, d] = dateFrom.split("-").map(Number);
+      const fromTs = new Date(y, m - 1, d).getTime();
       base = base.filter((t) => parseDate(t.date) >= fromTs);
     }
     if (dateTo) {
-      const toTs = new Date(dateTo).getTime() + 86400000 - 1;
+      const [y, m, d] = dateTo.split("-").map(Number);
+      const toTs = new Date(y, m - 1, d).getTime() + 86400000 - 1;
       base = base.filter((t) => parseDate(t.date) <= toTs);
     }
 
@@ -178,8 +181,15 @@ const Index = () => {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.1)_0%,_transparent_60%)]" />
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-5">
-            <h1 className="text-2xl font-extrabold text-primary-foreground tracking-tight">Expenses</h1>
+            <h1 className="text-2xl font-extrabold text-primary-foreground tracking-tight">Xpense</h1>
             <div className="flex items-center gap-0.5">
+              <button
+                onClick={() => logout()}
+                className="w-9 h-9 rounded-xl flex items-center justify-center text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-all"
+                title="Sign out"
+              >
+                <LogOut size={17} />
+              </button>
               <button
                 onClick={() => setTagsSheetOpen(true)}
                 className="w-9 h-9 rounded-xl flex items-center justify-center text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-all"

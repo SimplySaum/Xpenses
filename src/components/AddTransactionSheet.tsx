@@ -89,7 +89,7 @@ const AddTransactionSheet = ({ open, onClose, onAdd, activeList, tags }: AddTran
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-full bg-muted/60 rounded-xl px-4 py-3 text-foreground text-sm outline-none focus:ring-2 focus:ring-primary/50 border border-border/30 [color-scheme:dark]"
+              className="w-full bg-muted/60 rounded-xl px-4 py-3 text-foreground text-sm outline-none focus:ring-2 focus:ring-primary/50 border border-border/30 [color-scheme:dark] h-[46px] appearance-none"
             />
           </div>
 
